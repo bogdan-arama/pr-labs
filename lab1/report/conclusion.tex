@@ -1,0 +1,27 @@
+\section{Conclusion}
+
+On my laptop (6 cores, 12 logical processors) all the work I measured, counting 50 million
+numbers, was \textbf{CPU-bound}. I tell this by two checks: the time falls when threads are added
+(as long as there are free cores), and the time is close to the time of the pure computation, with
+no part spent waiting for a device.
+\begin{itemize}
+\item \emph{Task 1a}: the time fell from 919\,ms on 1 thread to 301\,ms at 6 threads and 279\,ms at
+12. If the work were waiting for the disk, more threads would not have made it three times faster.
+Beyond the 12 logical processors it got worse, because there was no more processor to give.
+\item \emph{Task 1b}: the data is already in memory, so there is no I/O at all. The per-thread
+version went from 182\,ms on 1 thread to 68\,ms at 8 threads.
+\item \emph{Task 1c} is limited by the processor too, but by only \emph{one} core. The single
+reader that reads the lines and creates the strings is the bottleneck: the workers find the queue
+empty for almost every batch, and 1 to 64 workers all take about 2.1\,s.
+\end{itemize}
+None of these tasks was I/O-bound on my machine. The 369\,MB file fits easily in the 16\,GB of RAM,
+so Windows keeps it in its file cache, and ``reading'' it is only copying memory. Work becomes
+I/O-bound when the data has to come from a device much slower than the processor, which these
+tasks did not do.
+
+Synchronisation has a price that depends on how often it happens. A lock taken for every number
+made Task 1b ten times slower than per-thread counters (about 770\,ms vs.\ 75\,ms) and never faster
+than one thread. Batches of one line made Task 1c 6--20 times slower than batches of 10\,000. Shared
+counters without synchronisation were both wrong (84--87\,\% of the increments lost) and over
+4 times slower than per-thread counters (about 330\,ms). The fastest correct design was to share
+nothing while working and combine the results once at the end.

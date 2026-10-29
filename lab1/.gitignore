@@ -1,0 +1,9 @@
+data/
+out/
+report/build/
+*.aux
+*.log
+*.out
+*.toc
+*.synctex.gz
+__pycache__/

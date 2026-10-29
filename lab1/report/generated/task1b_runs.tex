@@ -1,0 +1,15 @@
+\begin{tabular}{lrrrrrrc}
+\toprule
+Version & Run & Time (ms) & Negative & Positive & Zero & Total & Correct \\
+\midrule
+1: shared, no sync & 1 & 330.1 & 3,369,126 & 3,360,083 & 25 & 6,729,234 & \textbf{no} \\
+1: shared, no sync & 2 & 348.5 & 3,954,164 & 3,943,448 & 25 & 7,897,637 & \textbf{no} \\
+1: shared, no sync & 3 & 331.2 & 3,402,233 & 3,391,194 & 25 & 6,793,452 & \textbf{no} \\
+2: shared + lock & 1 & 794.6 & 25,001,107 & 24,998,868 & 25 & 50,000,000 & yes \\
+2: shared + lock & 2 & 767.5 & 25,001,107 & 24,998,868 & 25 & 50,000,000 & yes \\
+2: shared + lock & 3 & 736.1 & 25,001,107 & 24,998,868 & 25 & 50,000,000 & yes \\
+3: per-thread counters & 1 & 72.7 & 25,001,107 & 24,998,868 & 25 & 50,000,000 & yes \\
+3: per-thread counters & 2 & 83.3 & 25,001,107 & 24,998,868 & 25 & 50,000,000 & yes \\
+3: per-thread counters & 3 & 74.8 & 25,001,107 & 24,998,868 & 25 & 50,000,000 & yes \\
+\bottomrule
+\end{tabular}

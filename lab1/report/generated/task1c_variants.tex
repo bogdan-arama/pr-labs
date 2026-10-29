@@ -1,0 +1,15 @@
+\begin{tabular}{rrrrrrr}
+\toprule
+Batch (lines) & Queue limit & Workers & Time (ms) & Peak memory (MB) & Max batches in queue & Worker waits \\
+\midrule
+10,000 & 100 & 1 & 2183 & 214 & 48 & 4975 \\
+1 & 100 & 1 & 13377 & 207 & 100 & 1428281 \\
+10,000 & no limit & 1 & 2191 & 358 & 65 & 4475 \\
+10,000 & 100 & 4 & 2094 & 258 & 6 & 5001 \\
+1 & 100 & 4 & 19320 & 205 & 100 & 963760 \\
+10,000 & no limit & 4 & 2143 & 258 & 1 & 5003 \\
+10,000 & 100 & 12 & 2122 & 265 & 1 & 5011 \\
+1 & 100 & 12 & 42159 & 205 & 100 & 932549 \\
+10,000 & no limit & 12 & 2094 & 269 & 2 & 5011 \\
+\bottomrule
+\end{tabular}

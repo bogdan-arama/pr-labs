@@ -1,0 +1,76 @@
+\section{Purpose of the work}
+
+The aim of this laboratory work is to measure how the number of threads and the way the work is
+divided among them change the running time and the memory of a real workload: counting the
+negative, positive and zero values among 50\,000\,000 integers stored in a text file. From my own
+measurements I decide when this work is CPU-bound and when it is I/O-bound, I observe a race
+condition and the cost of fixing it, and I find where the parallel speed-up stops.
+
+\section{Source code}
+
+The program is written in Java and is kept in the Git repository
+\begin{center}
+\url{https://github.com/bogdan-arama/pr-labs} \quad (folder \texttt{lab1})
+\end{center}
+It is one program, \texttt{lab1.Main}; every task and configuration is chosen by command-line
+parameters, for example \texttt{java -cp out lab1.Main 1a --threads 8}. The
+\texttt{README.md} in the folder explains how to build it (\texttt{javac -d out src/lab1/*.java}),
+how to generate the data and how to run every task. Two small Python scripts run all
+configurations (\texttt{scripts/run\_benchmarks.py}) and draw the charts of this report
+(\texttt{scripts/plot.py}); all raw measurements are in \texttt{results/*.csv}.
+
+\section{Work environment}
+
+\begin{table}[H]
+\centering\small
+\begin{tabular}{@{}ll@{}}
+\toprule
+Item & Value \\
+\midrule
+Computer & laptop, connected to mains power \\
+CPU & AMD Ryzen 5 5600H (Zen 3), 3.3\,GHz base, up to 4.2\,GHz boost \\
+Cores & 6 physical cores, 12 logical processors (SMT, 2 threads per core) \\
+RAM & 16\,GB DDR4-3200 (2 modules, 15.4\,GB usable) \\
+Disk & Intel SSD 670p 512\,GB (\texttt{SSDPEKNU512GZ}), NVMe, PCIe 3.0 x4 \\
+Operating system & Windows 11 Pro, build 10.0.22624, 64-bit \\
+Language and runtime & Java 17, Eclipse Temurin OpenJDK 17.0.18+8, HotSpot 64-Bit Server VM \\
+Helper scripts & Python 3.14.2, matplotlib 3.10.8 \\
+\bottomrule
+\end{tabular}
+\caption{Hardware and software used for all measurements}
+\end{table}
+
+\section{Data and method of measurement}
+
+\textbf{Data.} \texttt{java -cp out lab1.Main gen} writes \texttt{data/numbers.txt}: 50\,000\,000
+integers drawn uniformly from $[-1\,000\,000,\,1\,000\,000]$ with \texttt{SplittableRandom}
+(seed 42), one per line, 369\,445\,634 bytes. While writing, the generator also counts the signs
+and saves them in \texttt{numbers.txt.expected}.
+
+\textbf{Correctness check.} The expected result is
+\textbf{25\,001\,107 negative, 24\,998\,868 positive and 25 zero} values, which add up to
+50\,000\,000. After every run the program compares its totals with this file and prints
+\texttt{correct=true} or \texttt{false}; the benchmark script stops if any correct version gives
+wrong totals. Every run of Tasks 1a, 1b (versions 2 and 3) and 1c produced exactly these
+numbers.
+
+\textbf{Time.} \texttt{System.nanoTime()} is read just before the threads are created and just
+after the last one has been joined. JVM start-up is not included, and in Task 1b loading the array
+is not included either, as the task requires.
+
+\textbf{Peak memory.} At the end of every run the program asks the operating system for the peak
+working set of its own process (\texttt{PeakWorkingSet64} on Windows, \texttt{VmHWM} on Linux).
+This is the largest amount of physical memory the whole process (JVM, heap, thread stacks, native
+buffers) used during the run. To make it belong to one configuration only, every configuration is
+run in a fresh JVM.
+
+\textbf{Repetitions.} Tasks 1a and 1c were run 5 times per thread count, Task 1b 3 times; the charts show the median and a shaded band from the fastest to the
+slowest run. Repetitions were interleaved (all thread counts once, then all again), so slow
+changes of the machine (temperature, background programs) spread over all configurations. Besides
+the thread counts required by the task (1, 2, 4, 8, 16, 32, 64) I also measured 6 and 12, the
+numbers of physical cores and logical processors. In the charts these two are marked with dotted
+vertical lines. Speed-up is the median time on 1 thread divided by the median time on $N$ threads.
+
+\textbf{File cache.} The 369\,MB file easily fits in the 16\,GB of RAM, so after the first read
+Windows keeps it in its file cache. Before Tasks 1a and 1c the benchmark makes one unmeasured run
+to bring the file into the cache, so all measured runs read it from memory, not from the SSD.
